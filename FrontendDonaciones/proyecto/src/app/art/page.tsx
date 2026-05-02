@@ -1,11 +1,11 @@
-import CampaignBoard from '@/app/features/campaigns/components/campaign-board'
-import Layout from '@/app/layouts/layout'
-import React from 'react'
+import CampaignBoard from "@/features/campaigns/components/campaign-board/campaign-board";
+import MainLayout from "@/shared/layouts/main-layout/main-layout";
 
-export default function PageEducation() {
+
+export default function ArtPage() {
   return (
-    <Layout>
+    <MainLayout>
       <CampaignBoard category="art" />
-    </Layout>
-  )
+    </MainLayout>
+  );
 }

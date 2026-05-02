@@ -1,11 +1,11 @@
-import CampaignBoard from '@/app/features/campaigns/components/campaign-board'
-import Layout from '@/app/layouts/layout'
+import CampaignBoard from '@/features/campaigns/components/campaign-board/campaign-board'
+import MainLayout from '@/shared/layouts/main-layout/main-layout'
 import React from 'react'
 
 export default function PageEntrepreneurship() {
   return (
-    <Layout>
+    <MainLayout>
       <CampaignBoard category="entrepreneurship" />
-    </Layout>
+    </MainLayout>
   )
 }

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { useAuthStore } from "@/app/stores/auth.store";
-import "./globals.css";
+import { useAuthStore } from "@/features/auth/store/auth.store";
+import "./globals.css"; // 🔥 IMPORTANTE
 
 export default function RootLayout({
   children,
