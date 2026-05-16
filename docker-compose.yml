@@ -1,0 +1,39 @@
+services:
+
+  postgres:
+    image: postgres:12-alpine
+    container_name: postgresdos_donations
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: camilo
+      POSTGRES_USER: haroldcamilo
+      POSTGRES_DB: portfolio2
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./Backend/proyecto-backend
+    container_name: nest_backend
+    restart: always
+    ports:
+      - "4000:4000"
+    depends_on:
+      - postgres
+    env_file:
+      - ./Backend/proyecto-backend/.env
+
+  frontend:
+    build: ./FrontendDonaciones/frontend
+    container_name: next_frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+
+volumes:
+  postgres_data:
