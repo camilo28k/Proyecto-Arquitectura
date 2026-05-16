@@ -12,9 +12,32 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 enum Role {
   ADMIN
   USER
+}
+
+enum DonationStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  DONATION
+  DOCUMENT_UPLOAD
+  DOCUMENT_GENERATE
+}
+
+enum DocumentType {
+  UPLOADED
+  GENERATED
 }
 
 model User {
@@ -24,107 +47,107 @@ model User {
   password  String
   role      Role     @default(USER)
 
-  healthCampaigns          Health[]
-  educationCampaigns       Education[]
-  technologyCampaigns      Technology[]
-  artCampaigns             Art[]
-  entrepreneurshipCampaigns Entrepreneurship[]
-  environmentCampaigns     Environment[]
-  universityProjectCampaigns UniversityProject[]
-  activities                Activity[]
+  campaigns  Campaign[]
+  donations  Donation[]
+  activities Activity[]
+  documents  CampaignDocument[]
+  auditLogs  AuditLog[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Health {
+model Category {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  description String?
+  campaigns   Campaign[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Campaign {
   id          String   @id @default(uuid())
   title       String
   description String
   goal        Float
-  raised      Float   @default(0)
+  raised      Float    @default(0)
+  imageUrl    String?
+
   userId      String
   user        User     @relation(fields: [userId], references: [id])
+
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+
+  donations   Donation[]
+  documents   CampaignDocument[]
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
-model Education {
-  id          String   @id @default(uuid())
-  title       String
-  description String
-  goal        Float
-  raised      Float   @default(0)
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
+model Donation {
+  id          String         @id @default(uuid())
+  amount      Float
+  status      DonationStatus @default(PENDING)
+
+  userId      String?
+  user        User?          @relation(fields: [userId], references: [id])
+
+  campaignId  String
+  campaign    Campaign      @relation(fields: [campaignId], references: [id])
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
-model Technology {
-  id          String   @id @default(uuid())
+model CampaignDocument {
+  id          String       @id @default(uuid())
+
   title       String
-  description String
-  goal        Float
-  raised      Float   @default(0)
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  description String?
+  type        DocumentType @default(UPLOADED)
+
+  fileUrl     String?
+  s3Key       String
+  bucket      String?
+
+  fileName    String?
+  mimeType    String?
+  size        Int?
+
+  campaignId  String
+  campaign    Campaign @relation(fields: [campaignId], references: [id])
+
+  uploadedById String
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
-model Art {
-  id          String   @id @default(uuid())
-  title       String
-  description String
-  goal        Float
-  raised      Float   @default(0)
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
+model AuditLog {
+  id          String      @id @default(uuid())
+  action      AuditAction
+  entity      String?
+  entityId    String?
+  description String?
 
-model Entrepreneurship {
-  id          String   @id @default(uuid())
-  title       String
-  description String
-  goal        Float
-  raised      Float   @default(0)
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
+  userId      String?
+  user        User?       @relation(fields: [userId], references: [id])
 
-model Environment {
-  id          String   @id @default(uuid())
-  title       String
-  description String
-  goal        Float
-  raised      Float   @default(0)
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model UniversityProject {
-  id          String   @id @default(uuid())
-  title       String
-  description String
-  goal        Float
-  raised      Float   @default(0)
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime    @default(now())
 }
 
 model Activity {
-  id        String   @id @default(uuid())
-  objetivo  String
+  id          String   @id @default(uuid())
+  objective   String
+
   userId      String
   user        User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
